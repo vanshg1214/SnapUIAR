@@ -139,46 +139,4 @@ img[src*="poweredby"],
     0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* ══════════════════════════════════════════════
-   PLAY ANIMATION BUTTON
-   Glassmorphic pill above the filter tray.
-   Only shown when a model with GLTF animations
-   is active (e.g. the classic burger).
-══════════════════════════════════════════════ */
-.play-anim-btn {
-  position: fixed;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 110;
 
-  padding: 10px 28px;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  pointer-events: auto;
-
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  color: #fff;
-
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.play-anim-btn:active {
-  transform: translateX(-50%) scale(0.93);
-  background: rgba(255, 255, 255, 0.35);
-}
-
-.play-anim-btn.playing {
-  background: rgba(255, 80, 80, 0.35);
-  border-color: rgba(255, 120, 120, 0.5);
-}

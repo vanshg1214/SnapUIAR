@@ -37,16 +37,8 @@ export const tapPlaceComponent = {
       '#krabbyPattyModel': -0.1,    // Added Krabby Patty adjustment if needed
     }
 
-    // Models that have embedded GLTF animations
-    this.animatedModels = new Set(['#krabbyPattyModel'])
-    this._mixer = null
-    this._animAction = null
-    this._animPlaying = false
-    this._animClock = new THREE.Clock()
-
     this._initFilterUI()
     this._initGestures()
-    this._initAnimButton()
 
     // ── Ground tap → place model ────────────────────────────
     ground.addEventListener('click', (event) => {
@@ -69,9 +61,6 @@ export const tapPlaceComponent = {
       button.classList.add('active')
       this.activeModel = button.getAttribute('data-model')
 
-      // Stop any running animation before swapping
-      this._stopAnimation()
-
       // Live-swap model if one is already placed
       if (this.placedEntity && this.modelChild) {
         this.placedEntity.removeChild(this.modelChild)
@@ -82,9 +71,6 @@ export const tapPlaceComponent = {
         this.placedEntity.appendChild(child)
         this.modelChild = child
       }
-
-      // Show/hide the play button based on whether this model has animations
-      this._updateAnimButton()
     }
 
     // Scroll → detect the geometrically centred button
@@ -156,9 +142,6 @@ export const tapPlaceComponent = {
     this.hasAnimated     = false
     this.gesturesEnabled = false
 
-    // Show play button if this model has animations
-    this._updateAnimButton()
-
     // Enable gestures once animation is done (or after 1.2 s fallback)
     const enable = () => {
       if (this.gesturesEnabled) return
@@ -189,7 +172,7 @@ export const tapPlaceComponent = {
     // Returns true if the touch point lands on a UI element we should NOT intercept
     const isUITouch = (t) => {
       const el = document.elementFromPoint(t.clientX, t.clientY)
-      return el && !!el.closest('#filterContainer, .capture-ring, #playAnimBtn')
+      return el && !!el.closest('#filterContainer, .capture-ring')
     }
 
     // ── touchstart ───────────────────────────────────────────
@@ -296,89 +279,6 @@ export const tapPlaceComponent = {
 
     this._prevAngle  = angle
     this._prevSpread = spread
-  },
-
-  // ══════════════════════════════════════════════════════════
-  //  GLTF ANIMATION PLAYBACK
-  // ══════════════════════════════════════════════════════════
-  _initAnimButton() {
-    this._playBtn = document.getElementById('playAnimBtn')
-    this._playBtn.addEventListener('click', (e) => {
-      e.stopPropagation()
-      if (this._animPlaying) {
-        this._stopAnimation()
-      } else {
-        this._playAnimation()
-      }
-    })
-  },
-
-  _updateAnimButton() {
-    if (!this._playBtn) return
-    const show = this.hasPlacedModel && this.animatedModels.has(this.activeModel)
-    this._playBtn.style.display = show ? 'block' : 'none'
-    // Reset button state
-    this._playBtn.textContent = '▶ Play'
-    this._playBtn.classList.remove('playing')
-  },
-
-  _playAnimation() {
-    if (!this.modelChild) return
-    const obj = this.modelChild.getObject3D('mesh')
-    if (!obj) return
-
-    // Find all animation clips on the loaded GLTF
-    const clips = obj.animations || []
-    // A-Frame stores clips on the entity's components too
-    const gltfComp = this.modelChild.components['gltf-model']
-    let animClips = clips
-
-    // Try to get clips from the gltf-model component's model property
-    if (gltfComp && gltfComp.model && gltfComp.model.animations) {
-      animClips = gltfComp.model.animations
-    }
-
-    if (animClips.length === 0) {
-      console.warn('No GLTF animations found on this model. Available obj.animations:', obj.animations)
-      return
-    }
-
-    console.log(`Playing animation: "${animClips[0].name}" for model: ${this.activeModel}`)
-
-    // Create mixer and play the first clip
-    this._mixer = new THREE.AnimationMixer(obj)
-    this._animAction = this._mixer.clipAction(animClips[0])
-    this._animAction.reset()
-    this._animAction.play()
-    this._animPlaying = true
-    this._animClock.start()
-
-    // Update button
-    this._playBtn.textContent = '⏹ Stop'
-    this._playBtn.classList.add('playing')
-  },
-
-  _stopAnimation() {
-    if (this._mixer) {
-      if (this._animAction) this._animAction.stop()
-      this._mixer.stopAllAction()
-      this._mixer = null
-      this._animAction = null
-    }
-    this._animPlaying = false
-
-    if (this._playBtn) {
-      this._playBtn.textContent = '▶ Play'
-      this._playBtn.classList.remove('playing')
-    }
-  },
-
-  // Tick runs every frame — drives the animation mixer
-  tick() {
-    if (this._mixer && this._animPlaying) {
-      const delta = this._animClock.getDelta()
-      this._mixer.update(delta)
-    }
   },
 
   // ── INTERNAL HELPERS ────────────────────────────────────────
