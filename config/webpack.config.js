@@ -52,6 +52,12 @@ const makeDefaultHtmlLoader = () => ({
     options: {
       esModule: false,
       sources: {
+        urlFilter: (attribute, value, resourcePath) => {
+          if (value.includes('external/')) {
+            return false
+          }
+          return true
+        },
         list: [
           '...',
           {
@@ -90,6 +96,7 @@ const config = {
           from: path.join(rootPath, 'external'),
           to: path.join(distPath, 'external'),
           noErrorOnMissing: true,
+          info: { minimized: true },
         },
         {
           from: path.join(srcPath, 'assets'),
