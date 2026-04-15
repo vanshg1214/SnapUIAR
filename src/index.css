@@ -1,0 +1,173 @@
+/* ── "Tap To Place Model" overlay text ── */
+.over {
+  z-index: 10;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+#promptText {
+  font-size: 1.15em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  bottom: 140px;        /* sits just above the filter tray */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ── Hide 8th Wall branding ── */
+img[src*="poweredby"],
+#poweredby,
+.poweredby-container {
+  display: none !important;
+}
+
+/* ══════════════════════════════════════════════
+   STATIONARY CENTER RING  (exactly like Snapchat)
+   This ring never moves — it marks the active slot.
+══════════════════════════════════════════════ */
+.capture-ring {
+  position: fixed;
+  bottom: 28px;
+  left: 0;
+  width: 100vw;
+  height: 76px;          /* matches button height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 101;
+}
+
+.capture-ring::before {
+  content: '';
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* ══════════════════════════════════════════════
+   FILTER SCROLL TRAY
+   Padding trick: enough left/right padding so the
+   first and last buttons can also scroll to centre.
+══════════════════════════════════════════════ */
+.filter-container {
+  position: fixed;
+  bottom: 28px;
+  left: 0;
+  width: 100vw;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  gap: 16px;
+  /* half-viewport minus half-button-width keeps the active item centred */
+  padding: 0 calc(50vw - 30px);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.filter-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Individual filter button ── */
+.filter-button {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+
+  /* Colourful glassy look matching Snapchat */
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+
+  scroll-snap-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  cursor: pointer;
+  pointer-events: auto;  /* must be explicit — sits over A-Frame canvas */
+
+  opacity: 0.55;
+  transform: scale(0.88);
+  transition:
+    opacity  0.22s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s ease;
+}
+
+/* ── Active button — snapped into the centre ring ── */
+.filter-button.active {
+  opacity: 1;
+  transform: scale(1.15);   /* slightly larger than the ring to feel "locked in" */
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.55),
+    0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ══════════════════════════════════════════════
+   PLAY ANIMATION BUTTON
+   Glassmorphic pill above the filter tray.
+   Only shown when a model with GLTF animations
+   is active (e.g. the classic burger).
+══════════════════════════════════════════════ */
+.play-anim-btn {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+
+  padding: 10px 28px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  pointer-events: auto;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #fff;
+
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.play-anim-btn:active {
+  transform: translateX(-50%) scale(0.93);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.play-anim-btn.playing {
+  background: rgba(255, 80, 80, 0.35);
+  border-color: rgba(255, 120, 120, 0.5);
+}

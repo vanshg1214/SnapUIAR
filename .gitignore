@@ -1,0 +1,9 @@
+node_modules
+dist
+tmp
+temp_8thwall
+.DS_Store
+.env
+*.log
+ip.txt
+ip-clean.txt
